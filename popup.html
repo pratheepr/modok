@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>URL Duplicate Checker</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+<body>
+  
+    <strong><center><h1>MODOK</h1></center></strong>
+    <hr>
+  <div id=" firstline">   
+<button id="remove-all-dupes-btn" title="click! to remove dupes">Remove dupes</button>
+<button id="organize-all-dupes-btn" title="click! to organize tabs">Organize by domain</button> 
+</div> 
+<div id=" firstline">   
+  <button id="merge-all-dupes-btn" title="click! to merge tabs">Merge all windows</button>
+  <button id="todo-all-dupes-btn" title="click! to take notes tabs">Add Tasks</button> 
+  </div> <br>
+  <label class="switch">
+    <input type="checkbox" id="showtabs">
+    <span class="slider round" title="show tabs" id="showtabs" ></span>
+  </label>
+        <input type="text" id="searchInput" placeholder="Search tabs">
+              <ul id="search"></ul>
+              <hr>
+       
+              
+       <template id="li_template" clickable>
+            
+            <li id="tabs">
+              <a >
+                <h3 class="title" title="Go to this window">Tab Title</h3>
+                <p class="pathname" title="Go to this window">Tab Pathname</p>
+              </a>
+            </li>
+          </template>
+       
+
+          <label>Show Tabs: &#8681;</label>
+          <ul title="click, go to this window" id="tabList"> 
+            <hr>
+          </ul>
+       
+          <hr>
+
+
+          <label>Tab groups: &#8681;</label>
+          <hr>
+          <ul id="group"></ul>
+          <hr>
+       
+       <script src="popup.js"></script>
+      
+  </body>
+</html>

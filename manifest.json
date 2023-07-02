@@ -1,0 +1,33 @@
+{
+  "name": "URL Duplicate Checker-master",
+  "version": "2.5",
+  "manifest_version": 3,
+  "description": "Shows a notification when opening a URL that is already open in another tab",
+  "icons": {
+    "128": "images/dupebuster.png"
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  
+
+  "permissions": [
+    "tabs",
+    "notifications",
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabGroups"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "action": {
+    "default_icon": "images/dupebuster.png",
+    "default_title": "URL Duplicate Checker",
+    "default_popup":"popup.html"
+  }
+  
+}
+
