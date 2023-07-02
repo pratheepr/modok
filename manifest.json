@@ -1,5 +1,5 @@
 {
-  "name": "URL Duplicate Checker-master",
+  "name": "MODOK",
   "version": "2.5",
   "manifest_version": 3,
   "description": "Shows a notification when opening a URL that is already open in another tab",
