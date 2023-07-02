@@ -39,13 +39,12 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         console.log('inside duplicates');
         chrome.notifications.create({
           type: "basic",
-          title: "URL Duplicate Checker",
+          title: "MODOK Duplicate Checker",
           message: "This URL is already open in another tab.",
           iconUrl: "images/dupes.png",
           buttons: [
             { title: 'Continue' },
-            { title: 'Take me to existing tab' },
-            { title: 'Smash All Dupes' }
+            { title: 'Take me to existing tab' }
           ],
           priority: 2
         }, function(notificationId) {
