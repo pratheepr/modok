@@ -8,11 +8,8 @@ function high(x)
       var tabList = document.getElementById("tabList");
       tabs.forEach(function (tab) {
         var li = document.createElement("li");
-        // li.textContent = tab.title+" "+"(-  "+tab.url+" )";
         li.textContent = tab.title;
-        
-       
-        if (tab.active) {
+ if (tab.active) {
           li.classList.add("current-tab");
         }
   
@@ -23,12 +20,12 @@ function high(x)
           await chrome.tabs.update(tab.id, { active: true });
           await chrome.windows.update(tab.windowId, { focused: true });
         });
-
-      
-      });
+      });       
     });
   });
 } 
+
+
 //deletes dups 
 function delete_dupes(x)
 {
@@ -47,12 +44,14 @@ x.addEventListener("click", function() {
     });
   });
 }
+
+
 // toggles show tabs
 function toggle(x)
 {
   x.addEventListener("click", function (){
     var checkBox = document.getElementById("showtabs");
-  var text = document.getElementById("tabList");
+  var text = document.getElementById("search");
   if (checkBox.checked == true){
     text.style.display = "block";
   } else {
@@ -74,6 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
       var a = document.createElement('a');
       
       a.innerText = tab.title;
+      if (tab.active) {
+        li.classList.add("current-tab");
+      }
     
       li.appendChild(a);
       tabList.appendChild(li);
@@ -122,6 +124,7 @@ x.addEventListener('click', function() {
       } else {
         tabGroups[tabTitle] = [tab];
       }
+      
     });
 
     for (var title in tabGroups) {
@@ -152,19 +155,56 @@ x.addEventListener('click', function() {
       
     }
   });
+  x.disabled=true;
 });
+
 }
 
+// groups all tabs in window
+function couple(x)
+{
+  x.addEventListener("click", function() {
+    chrome.tabs.query({}, function(tabs) {
+      const tabGroups = {};
+
+      for (let i = 0; i < tabs.length; i++) {
+        const tab = tabs[i];
+        const tabUrl = tab.url;
+
+        if (!(tabUrl in tabGroups)) {
+          tabGroups[tabUrl] = [];
+        }
+
+        tabGroups[tabUrl].push(tab.id);
+      }
+
+      for (const url in tabGroups) {
+        const tabIds = tabGroups[url];
+
+        if (tabIds.length) {
+          chrome.tabs.group({ tabIds }, function(group) {
+            chrome.tabs.update(group.id, { title: "Group" }, function() {
+              console.log(`Grouped tabs with URL: ${url}`);
+            });
+          });
+        }
+      }
+    });
+  });
+
+}
 
  //--------------executing area------------------------------------------------------------------------------------------
 
  var remove_dupe=document.getElementById("remove-all-dupes-btn");
  var showtabs= document.getElementById("showtabs");
  var group=document.getElementById("organize-all-dupes-btn")
+ 
 high(showtabs);
 toggle(showtabs);
 delete_dupes(remove_dupe);
 organize(group);
+couple(group);
 
 
 

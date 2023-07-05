@@ -1,6 +1,6 @@
 {
   "name": "MODOK",
-  "version": "2.5",
+  "version": "2.6",
   "manifest_version": 3,
   "description": "Shows a notification when opening a URL that is already open in another tab",
   "icons": {
