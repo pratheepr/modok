@@ -63,24 +63,42 @@ function toggle(x)
 
 //search tabs
 document.addEventListener('DOMContentLoaded', function() {
+
+  chrome.tabs.query({ currentWindow: true }, function (tabs) {
+    
   var searchInput = document.getElementById('searchInput');
   var tabList = document.getElementById('search');
 
   // Fetch and display the open tabs
   chrome.tabs.query({}, function(tabs) {
     tabs.forEach(function(tab) {
-      var li = document.createElement('li');
-      var a = document.createElement('a');
-      
-      a.innerText = tab.title;
-      if (tab.active) {
-        li.classList.add("current-tab");
-      }
-    
-      li.appendChild(a);
-      tabList.appendChild(li);
+      //initial
+   
+      var tabItem = document.createElement('div');
+      tabItem.classList.add('tabItem');
 
-      li.addEventListener('click', async () => {
+      var tabTitle = document.createElement('div');
+      tabTitle.classList.add('tabTitle');
+      tabTitle.textContent = tab.title;
+
+     
+      if (tab.active) {
+        tabTitle.classList.add("current-tab");
+      }
+      var closeButton = document.createElement('div');
+        closeButton.classList.add('closeButton');
+        closeButton.textContent = 'X';
+  
+        closeButton.addEventListener('click', function () {
+          chrome.tabs.remove(tab.id);
+          tabItem.remove();
+        });
+  
+      tabItem.appendChild(tabTitle);
+    tabItem.appendChild(closeButton);
+      tabList.appendChild(tabItem);
+
+      tabItem.addEventListener('click', async () => {
         // need to focus window as well as the active tab
         await chrome.tabs.update(tab.id, { active: true });
         await chrome.windows.update(tab.windowId, { focused: true });
@@ -89,10 +107,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+ 
+  
   // Handle search functionality
   searchInput.addEventListener('input', function() {
     var searchText = searchInput.value.toLowerCase();
-    var tabs = tabList.getElementsByTagName('li');
+    var tabs = tabList.getElementsByClassName('tabItem');
 
     for (var i = 0; i < tabs.length; i++) {
       var tab = tabs[i];
@@ -105,6 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
+});
 });
 
 //organize tabs

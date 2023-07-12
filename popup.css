@@ -7,6 +7,7 @@ body {
     list-style-type: none;
     padding-inline-start: 0;
    
+   
   }
   #remove-all-dupes-btn,#organize-all-dupes-btn,#merge-all-dupes-btn,#todo-all-dupes-btn
   {
@@ -96,6 +97,7 @@ body {
     .current-tab{
       color: #1202ff;
     }
+  
   p {
     margin:10px;
    
@@ -105,10 +107,39 @@ body {
     font-weight: 900;
   }
   h2,h3,ul{
-    font-size:12px;
-    font-family: monospace;
-    font-weight: 900;
+    font-family: Arial, sans-serif;
   }
+
+  .tabItem {
+    margin-bottom: 5px;
+    padding: 5px;
+    
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    
+  }
+  .tabItem:nth-child(odd) {
+    background-color: #80808030;
+  }
+  .tabItem:nth-child(even) {
+    background-color: #ffffff;
+  }
+  
+  .tabTitle {
+    flex-grow: 1;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+   
+  .closeButton {
+    cursor: pointer;
+    color: red;
+    padding-right: 10px;
+    font-weight: bolder;
+    
+  }
+  
 
 
 
