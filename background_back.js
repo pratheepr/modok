@@ -1,22 +1,11 @@
 // URL pattern array to whitelist
 let whitelist = [];
 
-// Fetch whitelist from file
-fetch(chrome.runtime.getURL('whitelist.txt'))
-  .then(response => response.text())
-  .then(data => {
-    whitelist = data.split('\n').filter(url => url.trim() !== '');
-  })
-  .catch(error => {
-    console.error('Error fetching whitelist:', error);
-  });
-
-// Configuration object to define special processing for specific URLs
 const urlConfig = [
   {
     urlPattern: 'docs.google.com',
     idExtractor: (url) => {
-      const match = url.match(/\/d\/([^/]+)/);
+      const match = url.match(/\/document\/d\/([^/]+)/);
       return match ? match[1] : null;
     }
   },
@@ -47,27 +36,29 @@ function extractDocumentId(url) {
   return config ? config.idExtractor(url) : null;
 }
 
+
+
+// Fetch whitelist from file
+fetch(chrome.runtime.getURL('whitelist.txt'))
+  .then(response => response.text())
+  .then(data => {
+    whitelist = data.split('\n').filter(url => url.trim() !== '');
+   // console.log('Whitelist:', whitelist);
+  })
+  .catch(error => {
+    console.error('Error fetching whitelist:', error);
+  });
+
+
+// Listen for updates to the whitelist
+chrome.storage.onChanged.addListener(function (changes, namespace) {
+  if (namespace === "local" && "whitelist" in changes) {
+    whitelist = changes.whitelist.newValue;
+  }
+});
+
 // Dictionary to track loaded tabs
 let loadedTabs = {};
-
-// Function to create a notification
-function createNotification(title, message) {
-  chrome.notifications.create({
-    type: "basic",
-    title: title,
-    message: message,
-    iconUrl: "images/dupes.png",
-    buttons: [
-      { title: 'Continue' },
-      { title: 'Take me to existing tab' }
-    ],
-    priority: 2
-  }, function(notificationId) {
-    if (chrome.runtime.lastError) {
-      console.error(chrome.runtime.lastError.message);
-    }
-  });
-}
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   // Check if the tab update is complete and has a URL
@@ -85,52 +76,69 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       }
 
       // Create a URL pattern from the current tab's URL
-      const urlPattern = new URL(tab.url).href;
-      const urlPatternOrigin = new URL(tab.url).origin; 
+      let urlPattern = new URL(tab.url).href;
+      let urlPatternOrigin = new URL(tab.url).origin; 
+
+      console.log('urlPattern:', urlPattern);
+      console.log('urlPatternOrigin', urlPatternOrigin);
 
       // Check if it's a special URL
       if (isSpecialUrl(tab.url)) {
         // Extract the document ID for special URLs
         const documentId = extractDocumentId(tab.url);
         console.log('Special URL - Document ID:', documentId);
-        
-        // Query Chrome tabs with a matching document ID
-        chrome.tabs.query({url: `*://*/*/d/${documentId}/*`}, function(tabs) {
-          console.log('Inside Special Dupe Checker', tabs.length);
-          if (tabs.length > 1) {
-            // If duplicate tabs are found, create a notification
-            createNotification("MODOK Duplicate Checker", "This document is already open in another tab.");
-          }
-        });
+        // Perform special processing using the document ID
+        // ...
       } else {
         console.log('Normal URL - URL Pattern:', urlPattern);
         console.log('Normal URL - URL Pattern Origin:', urlPatternOrigin);
-        
-        // Query Chrome tabs with a matching URL pattern
-        chrome.tabs.query({url: `${urlPattern}`}, function(tabs) {
-          console.log('Inside Dupe Checker', tabs.length);
-          if (tabs.length > 1) {
-            // If duplicate tabs are found, create a notification
-            createNotification("MODOK Duplicate Checker", "This URL is already open in another tab.");
-          }
-        });
+        // Perform normal processing using the URL pattern
+        // ...
       }
 
-      // Update the loadedTabs dictionary with the new tab URL
-      loadedTabs[tabId] = {
-        tabId: tabId,
-        tabUrl: tab.url
-      };
 
-      console.log('Loaded Tabs:', loadedTabs);
+
+      // Query Chrome tabs with a matching URL pattern /*
+      chrome.tabs.query({url: `${urlPattern}`}, function(tabs) {
+        console.log('Inside Dupe Checker', tabs.length);
+        if (tabs.length > 1) {
+          // If duplicate tabs are found, create a notification
+          chrome.notifications.create({
+            type: "basic",
+            title: "MODOK Duplicate Checker",
+            message: "This URL is already open in another tab.",
+            iconUrl: "images/dupes.png",
+            buttons: [
+              { title: 'Continue' },
+              { title: 'Take me to existing tab' }
+            ],
+            priority: 2
+          }, function(notificationId) {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError.message);
+            }
+          });
+        }
+      });
     }
+
+    // Update the loadedTabs dictionary with the new tab URL
+    loadedTabs[tabId] = {
+      tabId: tabId,
+      tabUrl: tab.url
+    };
+
+    console.log('Loaded Tabs:', loadedTabs);
   }
 });
+
 
 chrome.tabs.onRemoved.addListener(function(tabId) {
   // Remove the tab from the loadedTabs dictionary when it is closed
   delete loadedTabs[tabId];
 });
+
+
 
 chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
   if (buttonIndex === 1) {
@@ -158,6 +166,7 @@ chrome.notifications.onButtonClicked.addListener(function (notificationId, butto
         }
       });
     });
+
   } else if (buttonIndex === 2) {
     chrome.notifications.clear(notificationId);
     chrome.tabs.query({ url: "*://*/*" }, function (tabs) {
